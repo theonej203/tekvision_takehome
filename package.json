@@ -1,0 +1,17 @@
+{
+  "name": "tekvision-takehome-playwright",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Playwright skeleton for the TekVision desktop automation take-home.",
+  "scripts": {
+    "test": "playwright test",
+    "test:headed": "playwright test --headed",
+    "test:ui": "playwright test --ui",
+    "report": "playwright show-report",
+    "inspect": "node scripts/inspectDesktop.js"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.44.1",
+    "dotenv": "^16.4.7"
+  }
+}
