@@ -10,6 +10,11 @@ This repository is a Playwright skeleton for the desktop automation take-home.
 - A single end-to-end spec covering the core scenario.
 - Placeholder report templates for bugs and coverage notes.
 
+## Submission Notes
+
+- Test summary: `docs/test-summary.md`
+- Bug reports: `docs/bugs/`
+
 ## Prerequisites
 
 - Node.js 16+.
@@ -26,6 +31,13 @@ npx playwright install
 ## Configure
 
 Copy `.env.example` to `.env` if you want to override defaults.
+
+Exploratory bug reproduction tests are opt-in and should not be enabled in the default config. To run them explicitly in PowerShell:
+
+```powershell
+$env:BUG_HUNT='true'
+npx playwright test tests/bug-hunt.spec.js
+```
 
 ## Run
 

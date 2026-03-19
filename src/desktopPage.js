@@ -10,16 +10,17 @@ class DesktopPage {
     this.readyTextControl = page.getByText(/^Ready$/).first();
     this.chatInviteTextControl = page.getByText(/Accept Chat/i).first();
     this.chatPanel = page.locator('[data-testid="chat-panel"], .chat-panel, [aria-label*="chat" i]').first();
+    this.messageCountText = page.getByText(/^\d+ messages$/).first();
     this.messageInput = page.locator('textarea, input[placeholder*="message" i], [contenteditable="true"]').first();
     this.sendButton = page.getByRole('button', { name: /send/i }).first();
   }
 
-  async open(runId) {
-    await this.page.goto(`/desktop/${runId}`);
+  async open(runId, desktopPath = '/desktop') {
+    await this.page.goto(`${desktopPath}/${runId}`);
   }
 
   async waitForDesktopShell() {
-    await expect(this.page).toHaveURL(/\/desktop\//);
+    await expect(this.page).toHaveURL(/\/desktop(v2)?\//);
     await expect(this.page.locator('body')).toContainText(/chat|desktop|interaction/i);
   }
 
@@ -49,6 +50,11 @@ class DesktopPage {
         timeout: 20_000,
       })
       .toBeTruthy();
+  }
+
+  async setAgentStatus(status) {
+    await expect(this.agentStatusSelect).toBeVisible();
+    await this.agentStatusSelect.selectOption(status);
   }
 
   async acceptChatInvite() {
@@ -83,6 +89,12 @@ class DesktopPage {
     }
   }
 
+  async isChatInviteVisible() {
+    const roleVisible = await this.chatInviteButton.isVisible().catch(() => false);
+    const textVisible = await this.chatInviteTextControl.isVisible().catch(() => false);
+    return roleVisible || textVisible;
+  }
+
   async expectInteractionInfo(payload) {
     const { interactionInformation } = payload;
     await expect(this.page.locator('body')).toContainText(interactionInformation.interactionId);
@@ -112,6 +124,34 @@ class DesktopPage {
 
   async expectLiveChatEcho(message) {
     await expect(this.page.locator('body')).toContainText(message);
+  }
+
+  async getMessageCountBadge() {
+    const text = await this.messageCountText.textContent();
+    if (!text) {
+      throw new Error('Message count badge was not found.');
+    }
+
+    const match = text.match(/(\d+)/);
+    if (!match) {
+      throw new Error(`Could not parse message count badge text: ${text}`);
+    }
+
+    return Number(match[1]);
+  }
+
+  async getMessageCountLabel() {
+    const text = await this.messageCountText.textContent();
+    if (!text) {
+      throw new Error('Message count badge was not found.');
+    }
+
+    return text.trim();
+  }
+
+  async getRenderedMessageCount(searchText = 'Automation burst') {
+    const text = await this.page.locator('body').innerText();
+    return (text.match(new RegExp(searchText, 'g')) || []).length;
   }
 }
 
